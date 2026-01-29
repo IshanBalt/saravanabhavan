@@ -715,10 +715,18 @@
             background: rgba(239, 232, 223, 0.4);
             color: var(--text-primary);
             font-family: var(--font-family);
-            cursor: not-allowed;
-            opacity: 0.6;
+            font-weight: 500;
+            opacity: 1;
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--saffron);
+            background: rgba(239, 232, 223, 0.6);
+            box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.1);
         }
 
         .chat-input::placeholder {
@@ -732,12 +740,29 @@
             background-color: var(--saffron);
             color: white;
             border-radius: 50%;
-            cursor: not-allowed;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
+            opacity: 1;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--saffron), var(--gold));
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
+        }
+
+        .send-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .send-btn:disabled {
             opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .coming-soon {
@@ -1082,19 +1107,16 @@
 
                 <div class="chatbot-messages">
                     <div class="message">
-                        <div class="message-bot">👋 Hey! I'm SBuddy, your personal food recommendation assistant!</div>
+                        <div class="message-bot">👋 Hey there! I'm SBuddy, your food recommendation buddy!</div>
                     </div>
                     <div class="message">
-                        <div class="message-bot">Tell me about your tastes, dietary preferences, or what you're in the mood for, and I'll help you find the perfect dish.</div>
-                    </div>
-                    <div class="message">
-                        <div class="message-bot">✨ Coming soon on the app!</div>
+                        <div class="message-bot">🍽️ Tell me... what kind of mood are you in? Are you feeling spicy, light, or adventurous today?</div>
                     </div>
                 </div>
 
                 <div class="chatbot-input-area">
                     <div style="position: relative;">
-                        <div class="coming-soon">Coming Soon</div>
+                        <div class="coming-soon" style="display: none;">Coming Soon</div>
                         <div class="input-wrapper">
                             <input type="text" class="chat-input" placeholder="Ask SBuddy for food recommendations..." disabled>
                             <button class="send-btn" disabled>→</button>
@@ -1164,6 +1186,167 @@
     </footer>
 
     <script>
+        // SBuddy Groq API Configuration
+        const GROQ_API_KEY = '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';
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+        const menuItems = [
+            { name: 'Masala Dosa', price: 'R89.99', description: 'Crispy rice crepe filled with spiced potato and lentil curry' },
+            { name: 'Sambar', price: 'R59.99', description: 'Tangy lentil-based vegetable stew with aromatic spices' },
+            { name: 'Idli & Chutney', price: 'R49.99', description: 'Soft steamed rice cakes with homemade coconut and spice chutneys' },
+            { name: 'Chole Bhature', price: 'R79.99', description: 'Fluffy fried bread with spiced chickpea curry' },
+            { name: 'Vada Sambar', price: 'R69.99', description: 'Crispy lentil fritters served with warm sambar' },
+            { name: 'Biryani', price: 'R99.99', description: 'Fragrant basmati rice cooked with vegetables and spices' }
+        ];
+
+        const systemPrompt = `You are SBuddy, a friendly and helpful AI food recommendation assistant for Saravana Bhavan, a premium South Indian restaurant in Durban. Your role is to help customers discover the perfect dish based on their mood, preferences, and appetite.
+
+Available Menu Items:
+${menuItems.map(item => `- ${item.name} (${item.price}): ${item.description}`).join('\n')}
+
+Guidelines:
+1. Ask about the customer's current mood, preferences, and dietary needs
+2. Make personalized recommendations from the menu
+3. Be conversational and friendly, using casual language
+4. If they mention feeling spicy, recommend Masala Dosa or Chole Bhature
+5. If they want something light, suggest Idli & Chutney or Sambar
+6. If they're very hungry, recommend Biryani
+7. If they want crispy food, suggest Vada Sambar or Masala Dosa
+8. Always explain WHY you're recommending something
+9. Keep responses concise (2-3 sentences max)
+10. Never recommend anything not on the menu
+11. Be enthusiastic about South Indian cuisine!
+
+Start by asking what brings them in today, and what kind of mood they're in.`;
+
+        let conversationHistory = [];
+
+        // Enable chat functionality
+        function enableChat() {
+            const chatInput = document.querySelector('.chat-input');
+            const sendBtn = document.querySelector('.send-btn');
+
+            chatInput.disabled = false;
+            sendBtn.disabled = false;
+            chatInput.style.opacity = '1';
+            chatInput.style.cursor = 'pointer';
+            sendBtn.style.opacity = '1';
+            sendBtn.style.cursor = 'pointer';
+
+            const comingSoonBadge = document.querySelector('.coming-soon');
+            if (comingSoonBadge) {
+                comingSoonBadge.style.display = 'none';
+            }
+
+            chatInput.placeholder = 'Tell SBuddy what you\'re in the mood for...';
+
+            sendBtn.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+
+        async function sendMessage() {
+            const chatInput = document.querySelector('.chat-input');
+            const messagesContainer = document.querySelector('.chatbot-messages');
+            const userMessage = chatInput.value.trim();
+
+            if (!userMessage) return;
+
+            // Clear input
+            chatInput.value = '';
+
+            // Add user message to display
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'message';
+            userMessageDiv.innerHTML = `<div class="message-user">${escapeHtml(userMessage)}</div>`;
+            messagesContainer.appendChild(userMessageDiv);
+
+            // Add user message to conversation history
+            conversationHistory.push({
+                role: 'user',
+                content: userMessage
+            });
+
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message';
+            typingDiv.innerHTML = `<div class="message-bot">✓ SBuddy is thinking...</div>`;
+            messagesContainer.appendChild(typingDiv);
+
+            try {
+                const response = await fetch(GROQ_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${GROQ_API_KEY}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'mixtral-8x7b-32768',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: systemPrompt
+                            },
+                            ...conversationHistory
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 150,
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const botMessage = data.choices[0].message.content;
+
+                // Remove typing indicator
+                typingDiv.remove();
+
+                // Add bot response
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'message';
+                botMessageDiv.innerHTML = `<div class="message-bot">${escapeHtml(botMessage)}</div>`;
+                messagesContainer.appendChild(botMessageDiv);
+
+                // Add to conversation history
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: botMessage
+                });
+
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            } catch (error) {
+                console.error('Error:', error);
+                typingDiv.innerHTML = `<div class="message-bot">⚠️ Sorry, I encountered an error. Please try again!</div>`;
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Initialize SBuddy on page load
+        window.addEventListener('load', enableChat);
+
         let currentReview = 0;
         const reviews = document.querySelectorAll('.review-card');
         const totalReviews = reviews.length;
