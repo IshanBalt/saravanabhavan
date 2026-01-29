@@ -1189,6 +1189,9 @@
         // SBuddy Groq API Configuration
         const GROQ_API_KEY = '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';
         const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        
+        // CORS proxy for development
+        const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
 
         const menuItems = [
             { name: 'Masala Dosa', price: 'R89.99', description: 'Crispy rice crepe filled with spiced potato and lentil curry' },
@@ -1281,31 +1284,62 @@ Start by asking what brings them in today, and what kind of mood they're in.`;
             messagesContainer.appendChild(typingDiv);
 
             try {
-                const response = await fetch(GROQ_API_URL, {
+                const payload = {
+                    model: 'mixtral-8x7b-32768',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: systemPrompt
+                        },
+                        ...conversationHistory
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 150,
+                };
+
+                let response = await fetch(GROQ_API_URL, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${GROQ_API_KEY}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        model: 'mixtral-8x7b-32768',
-                        messages: [
-                            {
-                                role: 'system',
-                                content: systemPrompt
-                            },
-                            ...conversationHistory
-                        ],
-                        temperature: 0.7,
-                        max_tokens: 150,
-                    })
+                    body: JSON.stringify(payload)
                 });
 
+                // If network error, try with CORS proxy
+                if (!response.ok && (response.status === 0 || !response.headers)) {
+                    console.log('Attempting with CORS proxy...');
+                    response = await fetch(CORS_PROXY + GROQ_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${GROQ_API_KEY}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
                 if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
+                    let errorMsg = `API error: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.error?.message) {
+                            errorMsg += ` - ${errorData.error.message}`;
+                        }
+                    } catch (e) {
+                        console.log('Could not parse error response');
+                    }
+                    console.error('Groq API Error:', errorMsg);
+                    throw new Error(errorMsg);
                 }
 
                 const data = await response.json();
+                
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    console.error('Invalid response structure:', data);
+                    throw new Error('Invalid API response structure');
+                }
+                
                 const botMessage = data.choices[0].message.content;
 
                 // Remove typing indicator
@@ -1327,8 +1361,12 @@ Start by asking what brings them in today, and what kind of mood they're in.`;
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
             } catch (error) {
-                console.error('Error:', error);
-                typingDiv.innerHTML = `<div class="message-bot">⚠️ Sorry, I encountered an error. Please try again!</div>`;
+                console.error('Detailed Error:', error);
+                typingDiv.remove();
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'message';
+                errorMessageDiv.innerHTML = `<div class="message-bot">⚠️ ${error.message || 'Sorry, I encountered an error. Please try again!'}</div>`;
+                messagesContainer.appendChild(errorMessageDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
         }
