@@ -1,0 +1,46 @@
+:root {
+    --Primary-Color: #007749;
+    --Secondary-Color: #d3ae02;
+    --Text-Color-Secondary: #ffffff;
+} 
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+
+}
+.Menu ul {
+    list-style-type: none;
+    background-color: var(--Secondary-Color);
+    padding: 10px;
+    text-align: center;
+    margin: 0 auto;
+    overflow: hidden;
+
+}
+.Menu a {
+    text-decoration-color: var(--Secondary-Color);
+    color: var(--Primary-Color);
+    font-size: 18px;
+    padding: 15px; 
+}
+.Menu a:hover {
+    text-decoration-color: var(--Primary-Color);
+    color: var(--Text-Color-Secondary);
+}
+.Menu li {
+    display: inline;
+}
+#banner {
+    width: 100%; 
+    display: block;
+}
+#banner-title{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--Primary-Color);
+    font-size: 45px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px var(--Secondary-Color);}
