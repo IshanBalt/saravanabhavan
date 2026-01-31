@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,15 +24,66 @@
             </ul>
         </nav>
     </header>
-    <section class = "hero">
-        <h1 id = "Hero Header">Welcome to Saravana Bhavan</h1>
-        <p id = "Slogan-Hero">World's No.1 South Indian Restaurant Chain</p>
-        <button id = "OrderNow" onclick="onOrderButtonClick()">Order Now</button>
+    <section class="hero">
+        <div class="carousel-container">
+            <div class="carousel-slide active">
+                <img src="HeroCarosel/Deca Cover Photo.png" alt="Saravana Bhavan">
+                <div class="carousel-overlay"></div>
+            </div>
+            <div class="carousel-slide">
+                <img src="HeroCarosel/Screenshot 2026-01-30 192354.png" alt="Delicious Food">
+                <div class="carousel-overlay"></div>
+            </div>
+            <div class="carousel-slide">
+                <img src="HeroCarosel/Screenshot 2026-01-30 192336.png" alt="Our Restaurant">
+                <div class="carousel-overlay"></div>
+            </div>
+            <div class="carousel-slide">
+                <img src="HeroCarosel/Screenshot 2026-01-30 192314.png" alt="Authentic Cuisine">
+                <div class="carousel-overlay"></div>
+            </div>
+            <div class="hero-content">
+                <h1 id="Hero-Header">Welcome to Saravana Bhavan</h1>
+                <p id="Slogan-Hero">World's No.1 South Indian Restaurant Chain</p>
+                <button id="OrderNow" onclick="onOrderButtonClick()">Order Now</button>
+            </div>
+            <button class="carousel-control prev" onclick="moveCarousel(-1)">&#10094;</button>
+            <button class="carousel-control next" onclick="moveCarousel(1)">&#10095;</button>
+            <div class="carousel-indicators">
+                <span class="indicator active" onclick="goToSlide(0)"></span>
+                <span class="indicator" onclick="goToSlide(1)"></span>
+                <span class="indicator" onclick="goToSlide(2)"></span>
+                <span class="indicator" onclick="goToSlide(3)"></span>
+            </div>
+        </div>
     </section>
+    
+    <!-- Main Content Section -->
+    <section id="article-content">
+        <div class="container">
+            <h2 style="color: #007749;">Welcome to Durban - Experience Tradition and Authenticity</h2>
+            
+            <div class="article-content">
+                <div class="map-embed">
+                    <img src="Images/DurbanMap.jpg" alt="Map of Durban, South Africa">
+                </div>
+                
+                <p>Nestled in the vibrant heart of Durban, South Africa, Saravana Bhavan brings the authentic flavors of South India to one of the world's most culturally diverse cities. Our restaurant stands as a testament to the rich culinary heritage that has made us the world's leading South Indian restaurant chain.</p>
+                
+                <p>Durban, known for its warm subtropical climate and bustling multicultural atmosphere, provides the perfect backdrop for our traditional dining experience. The city's unique blend of Indian, African, and European influences creates an environment where authentic South Indian cuisine not only thrives but celebrates its roots among a community that deeply appreciates culinary excellence.</p>
+                
+                <p>Located in this coastal paradise, our restaurant serves as a culinary bridge, connecting generations through time-honored recipes and cooking techniques passed down through decades. From our signature dosas to our aromatic filter coffee, every dish tells a story of tradition, authenticity, and the unwavering commitment to quality that has made Saravana Bhavan a household name across the globe.</p>
+                
+                <p>Whether you're a local resident or a visitor exploring the beauty of Durban, we invite you to experience the warmth of South Indian hospitality and discover why food lovers from around the world continue to make Saravana Bhavan their destination of choice for authentic vegetarian cuisine.</p>
+            </div>
+        </div>
+    </section>
+    
+    <footer id="footer">
+        <p style="text-align: center;">Washington DECA IBP</p>
+        <p style="text-align: center;">Made by</p>
+        <p style="text-align: center;">Piyush Chandra Kancharapu Ishan Hemanand Arjun Rajkumar</p>
+    </footer>
+    <script src="script.js"></script>
 </body>
-<footer id ="footer">
-    <p style = "text-align: center;">Washington DECA IBP</p>
-    <p style = "text-align: center;">Made by</p>
-    <p style = "text-align: center;">Piyush Chandra Kancharapu Ishan Hemanand Arjun Rajkumar</p>
-</footer>
 </html> 
