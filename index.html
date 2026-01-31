@@ -84,6 +84,243 @@
         <p style="text-align: center;">Made by</p>
         <p style="text-align: center;">Piyush Chandra Kancharapu Ishan Hemanand Arjun Rajkumar</p>
     </footer>
+
+    <!-- SBuddy Floating Button -->
+    <div id="sbuddy-toggle" class="sbuddy-toggle">
+        <span>SB</span>
+    </div>
+
+    <!-- SBuddy Chat Popup -->
+    <div id="sbuddy-popup" class="sbuddy-popup">
+        <div class="chatbot-container">
+            <div class="chatbot-header">
+                <div class="chatbot-avatar">🤖</div>
+                <div class="chatbot-info">
+                    <h3>SBuddy</h3>
+                    <p>AI Food Assistant</p>
+                </div>
+                <button class="close-chat" onclick="closeSBuddy()">✕</button>
+            </div>
+
+            <div class="chatbot-messages" id="sbuddy-messages">
+                <div class="message">
+                    <div class="message-bot">👋 Hey there! I'm SBuddy, your food recommendation buddy!</div>
+                </div>
+                <div class="message">
+                    <div class="message-bot">🍽️ Tell me... what kind of mood are you in? Are you feeling spicy, light, or adventurous today?</div>
+                </div>
+            </div>
+
+            <div class="chatbot-input-area">
+                <div class="input-wrapper">
+                    <input type="text" id="sbuddy-input" class="chat-input" placeholder="Ask SBuddy for food recommendations...">
+                    <button class="send-btn" onclick="sendMessage()">→</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
+    <script>
+        // SBuddy Groq API Configuration
+        const GROQ_API_KEY = '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';
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+        const menuItems = [
+            { name: 'Masala Dosa', price: 'R89.99', description: 'Crispy rice crepe filled with spiced potato and lentil curry' },
+            { name: 'Sambar', price: 'R59.99', description: 'Tangy lentil-based vegetable stew with aromatic spices' },
+            { name: 'Idli & Chutney', price: 'R49.99', description: 'Soft steamed rice cakes with homemade coconut and spice chutneys' },
+            { name: 'Chole Bhature', price: 'R79.99', description: 'Fluffy fried bread with spiced chickpea curry' },
+            { name: 'Vada Sambar', price: 'R69.99', description: 'Crispy lentil fritters served with warm sambar' },
+            { name: 'Biryani', price: 'R99.99', description: 'Fragrant basmati rice cooked with vegetables and spices' }
+        ];
+
+        const systemPrompt = `You are SBuddy, a friendly and helpful AI food recommendation assistant for Saravana Bhavan, a premium South Indian restaurant in Durban, South Africa. Your ONLY purpose is to help customers select food from our menu.
+
+Available Menu Items:
+${menuItems.map(item => `- ${item.name} (${item.price}): ${item.description}`).join('\n')}
+
+CRITICAL GUIDELINES:
+1. ONLY respond to food-related questions and meal recommendations
+2. If the user asks anything unrelated to food, ordering, or our menu, politely respond: "I'm SBuddy, your food recommendation assistant! I'm here specifically to help you choose delicious dishes from our menu. What kind of flavors are you in the mood for today?"
+3. Do NOT engage in general conversation, personal questions, or non-food topics
+4. Do NOT answer questions about politics, weather, math, coding, or anything outside of food recommendations
+5. Make personalized recommendations based on their food preferences:
+   - Spicy mood → Masala Dosa or Chole Bhature
+   - Light appetite → Idli & Chutney or Sambar
+   - Very hungry → Biryani
+   - Crispy preference → Vada Sambar or Masala Dosa
+6. Always explain WHY you're recommending something
+7. Keep responses concise (2-3 sentences max)
+8. Never recommend anything not on the menu
+9. Be enthusiastic about South Indian cuisine!
+10. If they greet you or start casually, immediately steer to food: "Hey! Ready to explore some amazing South Indian flavors? What sounds good to you today?"
+
+Remember: You are a food ordering assistant ONLY. Redirect all non-food topics back to the menu.`;
+
+        let conversationHistory = [];
+
+        // Toggle SBuddy popup
+        function toggleSBuddy() {
+            const popup = document.getElementById('sbuddy-popup');
+            const toggle = document.getElementById('sbuddy-toggle');
+            
+            if (popup.classList.contains('show')) {
+                popup.classList.remove('show');
+                toggle.classList.remove('active');
+            } else {
+                popup.classList.add('show');
+                toggle.classList.add('active');
+                document.getElementById('sbuddy-input').focus();
+            }
+        }
+
+        function closeSBuddy() {
+            const popup = document.getElementById('sbuddy-popup');
+            const toggle = document.getElementById('sbuddy-toggle');
+            popup.classList.remove('show');
+            toggle.classList.remove('active');
+        }
+
+        // Close popup when clicking outside
+        document.addEventListener('click', function(event) {
+            const popup = document.getElementById('sbuddy-popup');
+            const toggle = document.getElementById('sbuddy-toggle');
+            
+            if (popup.classList.contains('show') && 
+                !popup.contains(event.target) && 
+                !toggle.contains(event.target)) {
+                closeSBuddy();
+            }
+        });
+
+        // Add click event to toggle button
+        document.getElementById('sbuddy-toggle').addEventListener('click', toggleSBuddy);
+
+        // Send message on Enter key
+        document.getElementById('sbuddy-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const chatInput = document.getElementById('sbuddy-input');
+            const messagesContainer = document.getElementById('sbuddy-messages');
+            const userMessage = chatInput.value.trim();
+
+            if (!userMessage) return;
+
+            // Clear input
+            chatInput.value = '';
+
+            // Add user message to display
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'message';
+            userMessageDiv.innerHTML = `<div class="message-user">${escapeHtml(userMessage)}</div>`;
+            messagesContainer.appendChild(userMessageDiv);
+
+            // Add user message to conversation history
+            conversationHistory.push({
+                role: 'user',
+                content: userMessage
+            });
+
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message';
+            typingDiv.innerHTML = `<div class="message-bot">✓ SBuddy is thinking...</div>`;
+            messagesContainer.appendChild(typingDiv);
+
+            try {
+                const payload = {
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: systemPrompt
+                        },
+                        ...conversationHistory
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 150,
+                };
+
+                const response = await fetch(GROQ_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${GROQ_API_KEY}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    let errorMsg = `API error: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.error?.message) {
+                            errorMsg += ` - ${errorData.error.message}`;
+                        }
+                    } catch (e) {
+                        console.log('Could not parse error response');
+                    }
+                    console.error('Groq API Error:', errorMsg);
+                    throw new Error(errorMsg);
+                }
+
+                const data = await response.json();
+                
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    console.error('Invalid response structure:', data);
+                    throw new Error('Invalid API response structure');
+                }
+                
+                const botMessage = data.choices[0].message.content;
+
+                // Remove typing indicator
+                typingDiv.remove();
+
+                // Add bot response
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'message';
+                botMessageDiv.innerHTML = `<div class="message-bot">${escapeHtml(botMessage)}</div>`;
+                messagesContainer.appendChild(botMessageDiv);
+
+                // Add to conversation history
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: botMessage
+                });
+
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            } catch (error) {
+                console.error('Detailed Error:', error);
+                typingDiv.remove();
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'message';
+                errorMessageDiv.innerHTML = `<div class="message-bot">⚠️ ${error.message || 'Sorry, I encountered an error. Please try again!'}</div>`;
+                messagesContainer.appendChild(errorMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
 </body>
 </html> 
