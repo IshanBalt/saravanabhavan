@@ -24,8 +24,12 @@ Detailed Financials
 |_________________________|
 {Board 3}
 Cost Structure 
+{Board 5}
 Marketing Strat
-
+Key Metrics
+{Board 4}
+Demographics
+Locational Research
 
 
 
