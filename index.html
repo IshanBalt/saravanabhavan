@@ -127,18 +127,89 @@
         const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
         const menuItems = [
-            { name: 'Masala Dosa', price: 'R89.99', description: 'Crispy rice crepe filled with spiced potato and lentil curry' },
-            { name: 'Sambar', price: 'R59.99', description: 'Tangy lentil-based vegetable stew with aromatic spices' },
-            { name: 'Idli & Chutney', price: 'R49.99', description: 'Soft steamed rice cakes with homemade coconut and spice chutneys' },
-            { name: 'Chole Bhature', price: 'R79.99', description: 'Fluffy fried bread with spiced chickpea curry' },
-            { name: 'Vada Sambar', price: 'R69.99', description: 'Crispy lentil fritters served with warm sambar' },
-            { name: 'Biryani', price: 'R99.99', description: 'Fragrant basmati rice cooked with vegetables and spices' }
+            // BREAKFAST ITEMS
+            { name: 'Idly (3 pcs)', category: 'Breakfast', price: 'R45.00', description: 'Soft steamed rice cakes served with sambar and chutneys' },
+            { name: 'Podi Idly', category: 'Breakfast', price: 'R55.00', description: 'Idlis tossed in spiced lentil powder with ghee' },
+            { name: 'Medhu Vada (2 pcs)', category: 'Breakfast', price: 'R55.00', description: 'Crispy deep-fried lentil donuts served with sambar and chutneys' },
+            { name: 'Masala Vada (2 pcs)', category: 'Breakfast', price: 'R55.00', description: 'Spiced lentil fritters with onions and chilies' },
+            { name: 'Onion Medhu Vada', category: 'Breakfast', price: 'R60.00', description: 'Crispy vadas topped with caramelized onions' },
+            { name: 'Ghee Pongal', category: 'Breakfast', price: 'R75.00', description: 'Comforting rice and lentil porridge tempered with ghee, cumin, and black pepper' },
+            { name: 'Poori (3 pcs)', category: 'Breakfast', price: 'R70.00', description: 'Fluffy fried bread served with potato curry' },
+            { name: 'Chole Bhature', category: 'Breakfast', price: 'R95.00', description: 'Large fluffy fried bread with spiced chickpea curry' },
+            
+            // DOSA VARIETIES
+            { name: 'Plain Dosa', category: 'Dosa', price: 'R65.00', description: 'Traditional thin and crispy rice crepe' },
+            { name: 'Masala Dosa', category: 'Dosa', price: 'R85.00', description: 'Crispy dosa filled with spiced potato masala' },
+            { name: 'Ghee Dosa', category: 'Dosa', price: 'R75.00', description: 'Crispy dosa roasted with pure ghee for extra flavor' },
+            { name: 'Ghee Masala Dosa', category: 'Dosa', price: 'R95.00', description: 'Ghee-roasted dosa with potato filling' },
+            { name: 'Paper Dosa', category: 'Dosa', price: 'R95.00', description: 'Extra thin and extra large crispy dosa' },
+            { name: 'Mysore Masala Dosa', category: 'Dosa', price: 'R95.00', description: 'Spicy red chutney spread dosa with potato masala' },
+            { name: 'Rava Dosa', category: 'Dosa', price: 'R85.00', description: 'Crispy semolina crepe with cumin and curry leaves' },
+            { name: 'Onion Rava Dosa', category: 'Dosa', price: 'R95.00', description: 'Rava dosa topped with onions and green chilies' },
+            { name: 'Set Dosa (3 pcs)', category: 'Dosa', price: 'R75.00', description: 'Soft and fluffy mini dosas' },
+            
+            // UTTAPAM VARIETIES
+            { name: 'Plain Uttapam', category: 'Uttapam', price: 'R70.00', description: 'Thick South Indian pancake topped with onions and tomatoes' },
+            { name: 'Onion Uttapam', category: 'Uttapam', price: 'R75.00', description: 'Uttapam loaded with caramelized onions' },
+            { name: 'Mixed Vegetable Uttapam', category: 'Uttapam', price: 'R85.00', description: 'Uttapam topped with fresh vegetables' },
+            
+            // RICE DISHES
+            { name: 'Sambar Rice', category: 'Rice', price: 'R85.00', description: 'Steamed rice mixed with tangy sambar' },
+            { name: 'Curd Rice', category: 'Rice', price: 'R75.00', description: 'Cooling yogurt rice tempered with mustard and curry leaves' },
+            { name: 'Lemon Rice', category: 'Rice', price: 'R80.00', description: 'Tangy lemon-flavored rice with peanuts and curry leaves' },
+            { name: 'Tamarind Rice', category: 'Rice', price: 'R80.00', description: 'Spiced rice with tangy tamarind' },
+            { name: 'Vegetable Biryani', category: 'Rice', price: 'R115.00', description: 'Fragrant basmati rice cooked with mixed vegetables and aromatic spices' },
+            { name: 'Tomato Rice', category: 'Rice', price: 'R85.00', description: 'Flavorful rice cooked with tomatoes and spices' },
+            
+            // CURRIES & GRAVIES
+            { name: 'Sambar', category: 'Curries', price: 'R60.00', description: 'Traditional lentil-based vegetable stew' },
+            { name: 'Rasam', category: 'Curries', price: 'R55.00', description: 'Tangy tamarind and tomato soup with spices' },
+            { name: 'Dal Tadka', category: 'Curries', price: 'R85.00', description: 'Yellow lentils tempered with ghee and spices' },
+            { name: 'Kadai Vegetable', category: 'Curries', price: 'R95.00', description: 'Mixed vegetables in spicy tomato gravy' },
+            { name: 'Paneer Butter Masala', category: 'Curries', price: 'R125.00', description: 'Cottage cheese in rich creamy tomato gravy' },
+            { name: 'Palak Paneer', category: 'Curries', price: 'R120.00', description: 'Cottage cheese in spinach gravy' },
+            { name: 'Chana Masala', category: 'Curries', price: 'R95.00', description: 'Spiced chickpea curry' },
+            
+            // BREADS
+            { name: 'Chapati (3 pcs)', category: 'Breads', price: 'R60.00', description: 'Whole wheat flatbread' },
+            { name: 'Parotta (2 pcs)', category: 'Breads', price: 'R70.00', description: 'Flaky layered flatbread' },
+            { name: 'Naan', category: 'Breads', price: 'R55.00', description: 'Leavened oven-baked flatbread' },
+            { name: 'Butter Naan', category: 'Breads', price: 'R65.00', description: 'Naan brushed with butter' },
+            { name: 'Garlic Naan', category: 'Breads', price: 'R75.00', description: 'Naan topped with garlic and cilantro' },
+            
+            // SNACKS & STARTERS
+            { name: 'Samosa (2 pcs)', category: 'Snacks', price: 'R55.00', description: 'Crispy pastry filled with spiced potatoes and peas' },
+            { name: 'Mysore Bonda (4 pcs)', category: 'Snacks', price: 'R60.00', description: 'Deep-fried savory lentil fritters' },
+            { name: 'Pani Puri (6 pcs)', category: 'Snacks', price: 'R65.00', description: 'Crispy shells with spicy tangy water' },
+            { name: 'Gobi Manchurian', category: 'Snacks', price: 'R95.00', description: 'Indo-Chinese cauliflower in spicy sauce' },
+            { name: 'Paneer 65', category: 'Snacks', price: 'R115.00', description: 'Spicy fried cottage cheese' },
+            
+            // DESSERTS
+            { name: 'Gulab Jamun (2 pcs)', category: 'Desserts', price: 'R55.00', description: 'Soft milk dumplings in rose-flavored syrup' },
+            { name: 'Rasmalai (2 pcs)', category: 'Desserts', price: 'R70.00', description: 'Cottage cheese discs in sweetened milk' },
+            { name: 'Payasam', category: 'Desserts', price: 'R60.00', description: 'Traditional South Indian rice pudding' },
+            { name: 'Falooda Ice Cream', category: 'Desserts', price: 'R85.00', description: 'Rich ice cream with vermicelli and rose syrup' },
+            { name: 'Kesari', category: 'Desserts', price: 'R55.00', description: 'Semolina sweet with saffron and nuts' },
+            
+            // BEVERAGES
+            { name: 'Filter Coffee', category: 'Beverages', price: 'R45.00', description: 'Authentic South Indian filter coffee' },
+            { name: 'Masala Tea', category: 'Beverages', price: 'R40.00', description: 'Spiced Indian tea' },
+            { name: 'Lassi', category: 'Beverages', price: 'R55.00', description: 'Refreshing yogurt drink (sweet or salted)' },
+            { name: 'Mango Lassi', category: 'Beverages', price: 'R65.00', description: 'Creamy mango yogurt drink' },
+            { name: 'Badam Milk', category: 'Beverages', price: 'R60.00', description: 'Almond-flavored milk drink' },
+            { name: 'Buttermilk', category: 'Beverages', price: 'R40.00', description: 'Spiced yogurt drink' },
+            { name: 'Fresh Lime Soda', category: 'Beverages', price: 'R45.00', description: 'Refreshing lime with soda' },
+            
+            // THALI/COMBO MEALS
+            { name: 'Mini Meals', category: 'Meals', price: 'R135.00', description: 'Rice, sambar, rasam, vegetable curry, curd, pickle, and papad' },
+            { name: 'Special Thali', category: 'Meals', price: 'R165.00', description: 'Complete meal with rice, breads, 2 curries, sambar, rasam, dessert, and more' },
+            { name: 'Saravana Special Thali', category: 'Meals', price: 'R195.00', description: 'Deluxe meal with premium dishes and unlimited rice/breads' }
         ];
 
         const systemPrompt = `You are SBuddy, a friendly and helpful AI food recommendation assistant for Saravana Bhavan, a premium South Indian restaurant in Durban, South Africa. Your ONLY purpose is to help customers select food from our menu.
 
-Available Menu Items:
-${menuItems.map(item => `- ${item.name} (${item.price}): ${item.description}`).join('\n')}
+Available Menu Items (${menuItems.length} dishes across 10 categories):
+${menuItems.map(item => `- ${item.name} (${item.price}) [${item.category}]: ${item.description}`).join('\n')}
 
 CRITICAL GUIDELINES:
 1. ONLY respond to food-related questions and meal recommendations
@@ -146,15 +217,23 @@ CRITICAL GUIDELINES:
 3. Do NOT engage in general conversation, personal questions, or non-food topics
 4. Do NOT answer questions about politics, weather, math, coding, or anything outside of food recommendations
 5. Make personalized recommendations based on their food preferences:
-   - Spicy mood → Masala Dosa or Chole Bhature
-   - Light appetite → Idli & Chutney or Sambar
-   - Very hungry → Biryani
-   - Crispy preference → Vada Sambar or Masala Dosa
-6. Always explain WHY you're recommending something
-7. Keep responses concise (2-3 sentences max)
-8. Never recommend anything not on the menu
-9. Be enthusiastic about South Indian cuisine!
-10. If they greet you or start casually, immediately steer to food: "Hey! Ready to explore some amazing South Indian flavors? What sounds good to you today?"
+   - Spicy mood → Mysore Masala Dosa, Paneer 65, Gobi Manchurian
+   - Light appetite → Idly, Set Dosa, Curd Rice, Rasam
+   - Very hungry → Special Thali, Vegetable Biryani, Chole Bhature
+   - Crispy preference → Masala Vada, Paper Dosa, Rava Dosa
+   - Sweet tooth → Gulab Jamun, Rasmalai, Falooda Ice Cream
+   - Traditional South Indian → Filter Coffee, Ghee Pongal, Sambar Rice
+   - Indo-Chinese fusion → Gobi Manchurian, Paneer 65
+   - Breakfast → Idly, Dosa varieties, Poori, Vada
+   - Lunch/Dinner → Thalis, Biryani, Rice dishes with curries
+6. When recommending dishes, mention the category and explain WHY
+7. Suggest complementary items (e.g., "Try the Masala Dosa with Filter Coffee!")
+8. Keep responses concise (2-4 sentences max)
+9. Never recommend anything not on the menu
+10. Be enthusiastic about South Indian cuisine!
+11. If they greet you or start casually, immediately steer to food: "Hey! Ready to explore amazing South Indian flavors? What sounds good to you today?"
+12. You can suggest complete meals with multiple courses
+13. Mention price ranges when helpful (Budget-friendly vs Premium options)
 
 Remember: You are a food ordering assistant ONLY. Redirect all non-food topics back to the menu.`;
 
